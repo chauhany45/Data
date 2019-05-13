@@ -1,0 +1,102 @@
+#set$864495034420858@aquila123#EMR_MODE:0*
+
+
+du -hs * | sort -rh | head -5   find top 5 heavy file size
+find -type f -exec du -Sh {} + | sort -rh | head -n 5  
+
+VACUUM VERBOSE  "devicedata_logs_8082_2019-02-07"
+VACUUM VERBOSE  "parsed_loc_device_record_2019-02-22";
+
+sudo echo 3 > /proc/sys/vm/drop_caches
+
+/proc/sys/net/ipv4/tcp_tw_reuse   set to 1
+
+netstat -anp | grep :5432 | grep ESTABLISHED | wc -l
+
+netstat -anp | grep :8082 | grep ESTABLISHED | wc -l
+netstat -anp | grep :5432 | grep TIME_WAIT | wc -l
+netstat -anp | grep :8082 | grep TIME_WAIT | wc -l
+
+netstat -anp | grep :5432 | grep ESTABLISHED | wc -l
+
+ netstat -nat | awk '{print $6}' | sort | uniq -c | sort -r     --- to check all tcp connections
+ 
+ tcpdump port 8082 and '(tcp-syn|tcp-ack)!=0'
+ 
+cat /proc/sys/net/ipv4/tcp_fin_timeout
+echo 20 > /proc/sys/net/ipv4/tcp_fin_timeout
+net.ipv4.tcp_fin_timeout=20
+
+
+$ netstat -anp |  grep ':5432 ' | grep TIME_WAIT | awk '{print $7}' | cut -d \/ -f1 | grep -oE "[[:digit:]]{1,}" | xargs kill
+
+$ netstat -anp | grep ':5432 ' | grep CLOSE_WAIT | awk '{print $7}' | cut -d \/ -f1 | grep -oE "[[:digit:]]{1,}" | xargs kill
+lsof -i :5432 |grep TIME_WAIT| awk '{print $2}|uniq| xargs kill
+
+cat /proc/net/sockstat
+
+wget http://packages.erlang-solutions.com/site/esl/esl-erlang/FLAVOUR_1_general/esl-erlang_20.1-3~ubuntu~xenial_amd64.deb
+sudo dpkg -i esl-erlang_21.2.4-1\~ubuntu\~xenial_amd64.deb
+
+https://packages.erlang-solutions.com/erlang/esl-erlang/FLAVOUR_1_general/esl-erlang_21.2.4-1~ubuntu~bionic_amd64.deb
+
+postgres dbreplica 13.71.2.244
+
+
+Psql commands
+sudo -u postgres psql
+postgres=# create database mydb;
+
+grant all privileges on database dbbsnl to postgres;
+
+ 
+  java -Xmx2048m -Xms256m
+9
+
+SELECT pg_get_functiondef(f.oid)
+FROM pg_catalog.pg_proc f
+INNER JOIN pg_catalog.pg_namespace n ON (f.pronamespace = n.oid)
+WHERE n.nspname = 'public';
+
+psql -h localhost -U postgres -p 9999 dbbsnl
+SELECT
+    pg_size_pretty (
+        pg_database_size ('dbbsnl')
+    );
+
+
+SELECT
+    relname AS "relation",
+    pg_size_pretty (
+        pg_total_relation_size (C .oid)
+    ) AS "total_size"
+FROM
+    pg_class C
+LEFT JOIN pg_namespace N ON (N.oid = C .relnamespace)
+WHERE
+    nspname NOT IN (
+        'pg_catalog',
+        'information_schema'
+    )
+AND C .relkind <> 'i'
+AND nspname !~ '^pg_toast'
+ORDER BY
+    relation--,pg_total_relation_size (C .oid) DESC
+	
+	
+	
+	
+	
+	
+	SELECT schema_name, 
+       pg_size_pretty(sum(table_size)::bigint),
+       (sum(table_size) / pg_database_size(current_database())) * 100
+FROM (
+  SELECT pg_catalog.pg_namespace.nspname as schema_name,
+         pg_relation_size(pg_catalog.pg_class.oid) as table_size
+  FROM   pg_catalog.pg_class
+     JOIN pg_catalog.pg_namespace ON relnamespace = pg_catalog.pg_namespace.oid
+) t
+GROUP BY schema_name
+ORDER BY schema_name
+

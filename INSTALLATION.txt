@@ -1,0 +1,143 @@
+# Configurations
+
+#install pgsql
+
+sudo apt-get update
+
+sudo apt-get install postgresql postgresql-contrib
+
+sudo apt-get install postgresql-client
+
+sudo -i -u postgres
+
+sudo -u postgres createuser --interactive
+
+
+
+---Change data directory of POSTGRESQL
+
+
+sudo -u postgres psql
+
+SHOW data_directory;
+
+\q
+
+service postgresql stop
+
+service postgresql status
+
+sudo rsync -av /var/lib/postgresql /mnt/data_dir
+
+sudo mv /var/lib/postgresql/9.3/main /var/lib/postgresql/9.3/main.bak
+
+sudo nano /etc/postgresql/9.3/main/postgresql.conf
+
+edit: => data_directory = '/mnt/data_dir/postgresql/9.3/main'
+
+service postgresql start
+
+service postgresql status
+
+sudo -u postgres psql
+
+SHOW data_directory;
+
+
+#set password
+
+sudo -u postgres psql postgres
+
+\password postgres
+
+
+
+#install PostGis
+
+sudo apt-get install -y postgis postgresql-9.3-postgis-2.1
+
+
+#install rabbitmq
+
+wget http://packages.erlang-solutions.com/site/esl/esl-erlang/FLAVOUR_1_general/esl-erlang_20.2.2-1~ubuntu~trusty_amd64.deb
+wget http://packages.erlang-solutions.com/erlang/esl-erlang/FLAVOUR_1_general/esl-erlang_21.3.2-1~ubuntu~trusty_amd64.deb
+sudo dpkg -i esl-erlang_20.2.2-1~ubuntu~trusty_amd64.deb
+sudo dpkg -i esl-erlang_21.3.2-1~ubuntu~trusty_amd64.deb
+
+reference  https://www.vultr.com/docs/how-to-install-rabbitmq-on-ubuntu-16-04-47
+
+sudo apt-get update
+
+sudo apt-get install erlang
+echo "deb https://dl.bintray.com/rabbitmq/debian trusty main" | sudo tee /etc/apt/sources.list.d/bintray.rabbitmq.list
+
+//echo 'deb http://www.rabbitmq.com/debian/ testing main' |  sudo tee /etc/apt/sources.list.d/rabbitmq.list
+     
+wget -O- https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | sudo apt-key add -
+     
+     
+sudo apt-get update
+     
+     
+sudo apt-get install rabbitmq-server
+
+
+rabbitmq-plugins enable rabbitmq_management
+
+
+#add User in rabbitmq
+
+rabbitmqctl add_user newadmin s0m3p4ssw0rd
+
+rabbitmqctl set_user_tags newadmin administrator
+
+rabbitmqctl set_permissions -p / newadmin ".*" ".*" ".*"
+
+
+#Mount External HDD
+
+sudo blkid
+
+sudo mkdir /media/Data
+
+
+sudo cp /etc/fstab /etc/fstab.orig
+
+vi /etc/fstab
+(Add Below line in this file and change uui according to blkid command)
+UUID=519CB82E5888AD0F  /media/Data  ntfs-3g  defaults,windows_names,locale=en_US.utf8  0 0
+
+UUID=38FA3AE0FA3A99D8  /media/Databack  ntfs-3g  defaults,windows_names,locale=en_US.utf8  0 0
+
+UUID=B2B67E33B67DF865  /media/DATAS  ntfs-3g  defaults,windows_names,locale=en_US.utf8  0 0
+
+sudo mount -a
+
+UUID=B2B67E33B67DF865  /media/BACKUP  ntfs-3g  defaults,windows_names,locale=en_US.utf8  0 0
+UUID=38FA3AE0FA3A99D8  /media/Databack  ntfs-3g  defaults,windows_names,locale=en_US.utf8  0 0
+
+
+
+Filesystem      Size  Used Avail Use% Mounted on
+udev             32G   12K   32G   1% /dev
+tmpfs           6.3G  1.4M  6.3G   1% /run
+/dev/sda3       3.3T  3.0T  174G  95% /
+none            4.0K     0  4.0K   0% /sys/fs/cgroup
+none            5.0M     0  5.0M   0% /run/lock
+none             32G     0   32G   0% /run/shm
+none            100M     0  100M   0% /run/user
+/dev/sdd2       3.7T  493G  3.2T  14% /media/Databack
+/dev/sdc2       3.7T  932G  2.8T  26% /media/DATAS
+
+
+enable root login
+
+#sudo passwd root
+you will be prompted for a new Unix password. Write it twice (second for confirmation).
+
+Then execute
+
+#sudo passwd -u root 
+to unlock the account. This should return
+
+passwd: password expiry information changed
