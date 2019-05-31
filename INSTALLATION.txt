@@ -55,7 +55,8 @@ sudo -u postgres psql postgres
 #install PostGis
 
 sudo apt-get install -y postgis postgresql-9.3-postgis-2.1
-
+####  Change data directoy of rabbitmq#####
+/usr/lib/rabbitmq/bin
 
 #install rabbitmq
 
